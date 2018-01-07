@@ -6,9 +6,9 @@
 #   movies = Movie.create([{ name: 'Star Wars' }, { name: 'Lord of the Rings' }])
 #   Character.create(name: 'Luke', movie: movies.first)
 
+
 customer = Customer.first
 Account.create!(customer_id: customer.id, opened_date: Time.now, balance: 1500.0, meta_name: 'withdrawal')
 
 customer1 = Customer.last
 Account.create!(customer_id: customer1.id, opened_date: Time.now, balance: 2500.0, meta_name: 'deposit')
-

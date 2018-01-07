@@ -8,7 +8,7 @@ class Account < ApplicationRecord
     error_flag = false
     customer = nil
      Customer.transaction do
-      customer = Customer.create(name: customer_attrs[:name], email: customer_attrs[:email], phone: customer_attrs[:phone])
+      customer = Customer.create(name: customer_attrs[:name], email: customer_attrs[:email], phone: customer_attrs[:phone], branch_id: customer_attrs[:branch_id])
        unless customer
          error_flag=true
        end
@@ -34,6 +34,11 @@ class Account < ApplicationRecord
     customer.destroy!
   end
 
+  def self.list_customer
+    customer = Customer.all
+    customer.count
+  end
+
   def self.opening(account_attrs)
     error_flag = false
     customer = nil
@@ -42,7 +47,7 @@ class Account < ApplicationRecord
      Customer.transaction do
       Account.transaction do
        AccountTransaction.transaction do
-         customer = Customer.create(name: account_attrs[:name], email: account_attrs[:email], phone: account_attrs[:phone])
+         customer = Customer.create(name: account_attrs[:name], email: account_attrs[:email], phone: account_attrs[:phone], branch_id: account_attrs[:branch_id])
          account = Account.create(customer_id: customer.id, opened_date: Time.now, balance: account_attrs[:balance], meta_name: 'Money deposit')
          account_transaction = AccountTransaction.create(account_id: account.id, amount: account.balance, description: "Money deposit to open a new account", from_id: account.id)
          unless customer  && account && account_transaction
@@ -52,6 +57,21 @@ class Account < ApplicationRecord
       end
      end
     return error_flag, customer, account, account_transaction
+  end
+
+
+  def active_account()
+    if self.status == [false, nil]
+      raise ActiveRecord::RecordInvalid
+    end
+    update_attribute(:status, true)
+  end
+
+  def deactive_account()
+    if self.status == [true, nil]
+      raise ActiveRecord::RecordInvalid
+    end
+    update_attribute(:status, false)
   end
 
   def self.closing(account_attrs)
@@ -133,5 +153,24 @@ class Account < ApplicationRecord
     return error_flag, account1, account2, account_transaction
   end
 
+  # Example exception for customer
+  def self.except_customer(customer_id)
+    begin
+      c = Customer.find_by!(id: customer_id)
+    rescue Exception => e
+      print "Exception for customer #{e}"
+    end
+    return c
+  end
+
+  # Example exception for account
+  def self.except_account(account_id)
+    begin
+      a = Account.find_by!(id: account_id)
+    rescue Exception => e
+      print "Exception for account #{e}"
+    end
+    return a
+  end
 
 end
