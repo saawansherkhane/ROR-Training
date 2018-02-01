@@ -1,0 +1,73 @@
+https://code.tutsplus.com/articles/rspec-testing-for-beginners-part-1--cms-26716
+
+In Gemfile
+
+group :development, :test do
+  gem 'rspec-rails'
+end
+
+group :test do
+  gem 'database_cleaner'
+  gem 'factory_girl_rails'
+end
+
+bundle
+
+> bundle exec rails generate rspec:install
+
+> bundle exec rails generate rspec:model Account
+
+Create a folder inside spec support create a file database_cleaner.rb
+
+http://www.virtuouscode.com/2012/08/31/configuring-database_cleaner-with-rails-rspec-capybara-and-selenium/
+
+RSpec.configure do |config|
+
+  config.use_transactional_fixtures = true
+
+  config.before(:suite) do
+    DatabaseCleaner.strategy = :transaction
+    DatabaseCleaner.clean_with(:truncation)
+  end
+
+  config.around(:each) do |example|
+    DatabaseCleaner.cleaning do
+      example.run
+    end
+  end
+
+end
+
+or
+
+  before(:each) do
+    DatabaseCleaner.strategy = :transaction
+    DatabaseCleaner.clean_with(:truncation)
+    DatabaseCleaner.start
+    DatabaseCleaner.clean
+  end
+
+  Add in rails_spec.rb 
+    require 'database_cleaner'
+
+    Dir[Rails.root.join('spec/support/**/*.rb')].each { |f| require f }
+    # config.use_transactional_fixtures = true
+
+  
+===========================================================================
+CREATE DATABASE navinbank_test OWNER saawan;
+
+REPLACE THE DB NAME FROM DEVELOPMENT ENV DATBBASE.YML file
+
+console > bundle exec rails db:migrate
+
+or
+
+RAILS_ENV=test rake db:migrate
+===========================================================================
+
+switch system
+
+rails s -b 192.168.15.203
+
+===========================================================================
